@@ -2,6 +2,7 @@ package com.zyf.zhaiagent.app;
 
 import com.zyf.zhaiagent.advisor.MyLoggerAdvisor;
 import com.zyf.zhaiagent.advisor.ReReadingAdvisor;
+import com.zyf.zhaiagent.chatmemory.FileBasedChatMemory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
@@ -12,6 +13,8 @@ import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @Slf4j
@@ -25,23 +28,27 @@ public class LoveApp {
             "引导用户详述事情经过、对方反应及自身想法，以便给出专属解决方案。";
 
     public LoveApp(ChatModel dashscopeChatModel) {
-        // 初始化基于内存的对话记忆
-        // 1. 创建内存仓储
-        InMemoryChatMemoryRepository memoryRepository = new InMemoryChatMemoryRepository();
+        //初始化基于文件的对话记忆
+        String fileDir=System.getProperty("user.dir")+"/tmp/chat-memory";
+        ChatMemory chatMemory=new FileBasedChatMemory(fileDir);
 
-        // 2. 使用 Builder 构建 ChatMemory，并绑定仓储
-        ChatMemory chatMemory = MessageWindowChatMemory.builder()
-                .chatMemoryRepository(memoryRepository) // 绑定内存仓储
-                .maxMessages(10) // 可选：限制对话历史条数，避免上下文过长
-                .build();
+//        // 初始化基于内存的对话记忆
+//        // 1. 创建内存仓储
+//        InMemoryChatMemoryRepository memoryRepository = new InMemoryChatMemoryRepository();
+//
+//        // 2. 使用 Builder 构建 ChatMemory，并绑定仓储
+//        ChatMemory chatMemory = MessageWindowChatMemory.builder()
+//                .chatMemoryRepository(memoryRepository) // 绑定内存仓储
+//                .maxMessages(10) // 可选：限制对话历史条数，避免上下文过长
+//                .build();
 
         //初始化客户端对象
         chatClient = ChatClient.builder(dashscopeChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultAdvisors(//之后每次调用chatClient的对话都会用该拦截器，对所有请求生效
                         MessageChatMemoryAdvisor.builder(chatMemory).build() ,// 推荐使用 builder()
-                        new MyLoggerAdvisor(),//自定义日志Advisor，可按需开启
-                        new ReReadingAdvisor()//自定义推理增强Advisor,可按需开启，但是token数量翻倍了
+                        new MyLoggerAdvisor()//自定义日志Advisor，可按需开启
+//                       , new ReReadingAdvisor()//自定义推理增强Advisor,可按需开启，但是token数量翻倍了
                 )
                 .build();
 //        chatClient.prompt().advisors();对单个请求生效
@@ -61,5 +68,27 @@ public class LoveApp {
         log.info("content: {}", content);
         return content;
     }
+
+    record LoveReport(String title, List<String> suggestions) {
+    }
+
+    /**
+     * AI恋爱报告功能（实现结构化输出）
+     * @param message
+     * @param chatId
+     * @return
+     */
+    public LoveReport doChatWithReport(String message, String chatId) {
+        LoveReport loveReport = chatClient
+                .prompt()
+                .system(SYSTEM_PROMPT + "每次对话后都要生成恋爱结果，标题为{用户名}的恋爱报告，内容为建议列表")
+                .user(message)
+                .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId))
+                .call()
+                .entity(LoveReport.class);
+        log.info("loveReport: {}", loveReport);
+        return loveReport;
+    }
+
 
 }
