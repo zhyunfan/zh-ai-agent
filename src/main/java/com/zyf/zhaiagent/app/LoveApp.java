@@ -2,6 +2,7 @@ package com.zyf.zhaiagent.app;
 
 import com.zyf.zhaiagent.advisor.MyLoggerAdvisor;
 import com.zyf.zhaiagent.advisor.ReReadingAdvisor;
+import com.zyf.zhaiagent.advisor.SensitiveWordAdvisor;
 import com.zyf.zhaiagent.chatmemory.FileBasedChatMemory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -49,6 +50,7 @@ public class LoveApp {
                         MessageChatMemoryAdvisor.builder(chatMemory).build() ,// 推荐使用 builder()
                         new MyLoggerAdvisor()//自定义日志Advisor，可按需开启
 //                       , new ReReadingAdvisor()//自定义推理增强Advisor,可按需开启，但是token数量翻倍了
+                        ,new SensitiveWordAdvisor()
                 )
                 .build();
 //        chatClient.prompt().advisors();对单个请求生效
