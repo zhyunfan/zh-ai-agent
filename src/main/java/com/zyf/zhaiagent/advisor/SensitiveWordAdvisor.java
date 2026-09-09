@@ -28,7 +28,7 @@ public class SensitiveWordAdvisor implements CallAdvisor, StreamAdvisor {
 
     @Autowired
     private SensitiveWordService sensitiveWordService;
-    
+
     /**
      * 使用AtomicReference支持动态更新
      */
@@ -48,7 +48,7 @@ public class SensitiveWordAdvisor implements CallAdvisor, StreamAdvisor {
         // 初始化时加载
         refreshSensitiveWords();
     }
-    
+
     /**
      * 刷新违禁词列表
      */
@@ -70,7 +70,7 @@ public class SensitiveWordAdvisor implements CallAdvisor, StreamAdvisor {
         ChatClientRequest filteredRequest = filterRequest(request);
         Flux<ChatClientResponse> responses = chain.nextStream(filteredRequest);
         return new ChatClientMessageAggregator()
-            .aggregateChatClientResponse(responses, this::filterResponse);
+                .aggregateChatClientResponse(responses, this::filterResponse);
     }
 
     protected ChatClientRequest filterRequest(ChatClientRequest request) {
@@ -78,17 +78,17 @@ public class SensitiveWordAdvisor implements CallAdvisor, StreamAdvisor {
         if (words == null || words.isEmpty()) {
             return request;
         }
-        
+
         String originalText = request.prompt().getUserMessage().getText();
         String filteredText = filterSensitiveWords(originalText, words);
-        
+
         if (!filteredText.equals(originalText)) {
             log.warn("检测到违禁词，已过滤");
         }
-        
+
         return request.mutate()
-            .prompt(request.prompt().augmentUserMessage(filteredText))
-            .build();
+                .prompt(request.prompt().augmentUserMessage(filteredText))
+                .build();
     }
 
     protected ChatClientResponse filterResponse(ChatClientResponse response) {
@@ -119,7 +119,7 @@ public class SensitiveWordAdvisor implements CallAdvisor, StreamAdvisor {
         if (text == null || text.isEmpty()) {
             return text;
         }
-        
+
         String result = text;
         for (String word : words) {
             result = result.replace(word, "***");

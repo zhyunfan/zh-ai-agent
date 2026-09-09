@@ -45,26 +45,26 @@
             </exclusions>
         </dependency>
         <!--https://java2ai.com/docs/1.0.0-M6.1/models/ollama/-->
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.ai</groupId>-->
-<!--            <artifactId>spring-ai-ollama-spring-boot-starter</artifactId>-->
-<!--            <version>1.0.0-M6</version>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.springframework.ai</groupId>-->
+        <!--            <artifactId>spring-ai-ollama-spring-boot-starter</artifactId>-->
+        <!--            <version>1.0.0-M6</version>-->
+        <!--        </dependency>-->
 
         <!-- LangChain4J DashScope -->
-<!--        <dependency>-->
-<!--            <groupId>dev.langchain4j</groupId>-->
-<!--            <artifactId>langchain4j-community-dashscope</artifactId>-->
-<!--            <version>1.0.0-beta2</version>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>dev.langchain4j</groupId>-->
+        <!--            <artifactId>langchain4j-community-dashscope</artifactId>-->
+        <!--            <version>1.0.0-beta2</version>-->
+        <!--        </dependency>-->
 
-<!--        支持结构化输出-->
+        <!--        支持结构化输出-->
         <dependency>
             <groupId>com.github.victools</groupId>
             <artifactId>jsonschema-generator</artifactId>
             <version>4.38.0</version>
         </dependency>
-<!--        支持文件会话记忆持久化的序列化-->
+        <!--        支持文件会话记忆持久化的序列化-->
         <dependency>
             <groupId>com.esotericsoftware</groupId>
             <artifactId>kryo</artifactId>
@@ -79,6 +79,11 @@
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <version>8.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-markdown-document-reader</artifactId>
+            <version>1.1.2</version>  <!-- 与 spring-ai-alibaba 版本对齐 -->
         </dependency>
         <dependency>
             <groupId>cn.hutool</groupId>

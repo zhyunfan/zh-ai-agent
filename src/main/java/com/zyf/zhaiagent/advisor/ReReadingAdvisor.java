@@ -40,14 +40,14 @@ public class ReReadingAdvisor implements BaseAdvisor {
 	@Override
 	public ChatClientRequest before(ChatClientRequest chatClientRequest, AdvisorChain advisorChain) {
 		String augmentedUserText = PromptTemplate.builder()
-			.template(this.re2AdviseTemplate)
-			.variables(Map.of("re2_input_query", chatClientRequest.prompt().getUserMessage().getText()))// 提取用户原始问题填充变量
-			.build()
-			.render();
+				.template(this.re2AdviseTemplate)
+				.variables(Map.of("re2_input_query", chatClientRequest.prompt().getUserMessage().getText()))// 提取用户原始问题填充变量
+				.build()
+				.render();
 
 		return chatClientRequest.mutate()
-			.prompt(chatClientRequest.prompt().augmentUserMessage(augmentedUserText))
-			.build();
+				.prompt(chatClientRequest.prompt().augmentUserMessage(augmentedUserText))
+				.build();
 	}
 
 	@Override
@@ -56,7 +56,7 @@ public class ReReadingAdvisor implements BaseAdvisor {
 	}
 
 	@Override
-	public int getOrder() { 
+	public int getOrder() {
 		return this.order;
 	}
 
