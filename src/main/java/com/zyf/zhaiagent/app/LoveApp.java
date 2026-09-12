@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.InMemoryChatMemoryRepository;
@@ -100,12 +101,16 @@ public class LoveApp {
     @Resource
     private VectorStore loveAppVectorStore;
 
+    @Resource
+    private Advisor loveAppRagCloudAdvisor;
+
     /**
      * 和RAG知识库进行对话
      * @param message
      * @param chatId
      * @return
      *
+     *loveAppVectorStore过程：
      * 1. chatClient.prompt().user(message)   → 构造请求
      * 2. .advisors(...)                       → 注册 Advisor（不执行）
      * 3. .advisors(qaAdvisor)                 → 注册 RAG Advisor（不执行）
@@ -145,7 +150,9 @@ public class LoveApp {
                 //去 loveAppVectorStore 里做相似度检索，找出最相关的文档片段
                 //把检索到的内容拼进 prompt，作为上下文一起发给大模型
                 //大模型基于这些资料回答，而不是凭空瞎编 → 降低幻觉
-                .advisors(qaAdvisor)//这里才是把文本转换为向量
+//                .advisors(qaAdvisor)//这里才是把文本转换为向量
+                //应用RAG检索增强服务（基于云知识库服务）
+                .advisors(loveAppRagCloudAdvisor)
                 .call()
                 .chatResponse();//返回完整的 ChatResponse 对象（包含回复内容、元数据、token 用量等）
         String content=chatResponse.getResult().getOutput().getText();
