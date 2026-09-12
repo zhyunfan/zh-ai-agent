@@ -30,6 +30,19 @@
         <java.version>21</java.version>
     </properties>
 
+<!--    用 Spring AI BOM 统一管理版本，把所有 Spring AI 依赖锁到 1.1.2。-->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>1.1.2</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <!--如果dashscope-sdk-java和langchain4j-community-dashscope冲突，则注释一个，因为两者运行在不同的代码里面-->
         <!-- 阿里云百炼、灵积大模型服务 -->
@@ -83,7 +96,12 @@
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-markdown-document-reader</artifactId>
-            <version>1.1.2</version>  <!-- 与 spring-ai-alibaba 版本对齐 -->
+<!--            <version>1.1.2</version>  &lt;!&ndash; 与 spring-ai-alibaba 版本对齐 &ndash;&gt;-->
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-advisors-vector-store</artifactId>
+<!--            <version>1.0.0</version>-->
         </dependency>
         <dependency>
             <groupId>cn.hutool</groupId>
@@ -123,6 +141,11 @@
             <groupId>com.alibaba.cloud.ai</groupId>
             <artifactId>spring-ai-alibaba-starter-dashscope</artifactId>
             <version>1.1.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

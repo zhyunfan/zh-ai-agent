@@ -1,19 +1,23 @@
 package com.zyf.zhaiagent.app;
 
 import com.zyf.zhaiagent.advisor.MyLoggerAdvisor;
-import com.zyf.zhaiagent.advisor.ReReadingAdvisor;
 import com.zyf.zhaiagent.advisor.SensitiveWordAdvisor;
 import com.zyf.zhaiagent.chatmemory.FileBasedChatMemory;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.InMemoryChatMemoryRepository;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.vectorstore.SearchRequest;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
+
 
 import java.util.List;
 
@@ -92,5 +96,60 @@ public class LoveApp {
         return loveReport;
     }
 
+    //ai恋爱知识库问答功能
+    @Resource
+    private VectorStore loveAppVectorStore;
 
+    /**
+     * 和RAG知识库进行对话
+     * @param message
+     * @param chatId
+     * @return
+     *
+     * 1. chatClient.prompt().user(message)   → 构造请求
+     * 2. .advisors(...)                       → 注册 Advisor（不执行）
+     * 3. .advisors(qaAdvisor)                 → 注册 RAG Advisor（不执行）
+     * 4. .call()                              → 真正触发执行
+     *    ↓
+     *    Advisor 链开始执行（后注册的先执行）：
+     *    ↓
+     *    QuestionAnswerAdvisor.adviseCall()
+     *    ├─ 取出用户问题 message
+     *    ├─ 调用 EmbeddingModel 把 message 向量化   ← 向量化在这里！
+     *    ├─ 用向量去 loveAppVectorStore 做相似度检索
+     *    ├─ 把检索到的文档拼进 prompt
+     *    └─ 生成新请求，传给下一个 Advisor
+     *    ↓
+     *    MyLoggerAdvisor.adviseCall()          ← 此时看到的是已拼接 RAG 的请求
+     *    ├─ logRequest(chatClientRequest)
+     *    ├─ callAdvisorChain.nextCall(...)     → 调用大模型
+     *    └─ logResponse(chatClientResponse)
+     *    ↓
+     *    大模型返回结果
+     * 5. .chatResponse()                      → 拿到最终响应
+     */
+    public String doChatWithRag(String message,String chatId){
+        //之前写的 new QuestionAnswerAdvisor(loveAppVectorStore) 是在直接调用构造器，而你只传了 1 个参数，编译器自然去找匹配的构造器，结果发现需要 5 个参数的版本，于是报错。
+        //而 builder() 方法是静态工厂方法，它内部会帮你把那些参数都准备好，所以你只需要传 VectorStore 就行。
+        QuestionAnswerAdvisor qaAdvisor = QuestionAnswerAdvisor.builder(loveAppVectorStore)
+                .searchRequest(SearchRequest.builder().topK(4).similarityThreshold(0.5).build())
+                .build();
+        ChatResponse chatResponse=chatClient
+                .prompt()
+                .user(message)
+                .advisors(spec->spec.param(ChatMemory.CONVERSATION_ID,chatId))
+                //开启日志，便于观察效果
+                .advisors(new MyLoggerAdvisor())
+                //应用RAG知识库问答:
+                //用户问题 message 先被向量化
+                //去 loveAppVectorStore 里做相似度检索，找出最相关的文档片段
+                //把检索到的内容拼进 prompt，作为上下文一起发给大模型
+                //大模型基于这些资料回答，而不是凭空瞎编 → 降低幻觉
+                .advisors(qaAdvisor)//这里才是把文本转换为向量
+                .call()
+                .chatResponse();//返回完整的 ChatResponse 对象（包含回复内容、元数据、token 用量等）
+        String content=chatResponse.getResult().getOutput().getText();
+        log.info("content:{}",content);
+        return content;
+    }
 }
