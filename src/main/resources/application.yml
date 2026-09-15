@@ -8,8 +8,17 @@ spring:
       base-url: http://localhost:11434
       chat:
         model: deepseek-r1:7b
+    vectorstore:
+      pgvector:
+        index-type: HNSW
+        dimensions: 1024 #向量嵌入模型embedding的度，不设置会根据实际的向量数去指定维度的数量，最好确定一下
+        distance-type: COSINE_DISTANCE
+        max-document-batch-size: 10000 # Optional: Maximum number of documents per batch
   main:
     allow-bean-definition-overriding: true
+
+
+
 server:
   port: 8123
   servlet:

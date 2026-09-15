@@ -31,6 +31,7 @@ public class LoveAppVectorStoreConfig {
     @Bean
     VectorStore loveAppVectorStore(EmbeddingModel dashscopeEmbeddingModel) throws IOException {
         //有了嵌入大模型，就进行简易的基于内存的vectorstore存储
+        //根据 Spring AI Alibaba 官方文档，dashscopeEmbeddingModel 的默认模型是 text-embedding-v2，1536 是 OpenAI text-embedding-3-small 模型的默认输出维度
         SimpleVectorStore simpleVectorStore = SimpleVectorStore.builder(dashscopeEmbeddingModel).build();
         //加载文档
         List<Document> documentList=loveAppDocumentLoader.loadMarkdowns();

@@ -136,7 +136,7 @@ public class LoveApp {
     public String doChatWithRag(String message,String chatId){
         //之前写的 new QuestionAnswerAdvisor(loveAppVectorStore) 是在直接调用构造器，而你只传了 1 个参数，编译器自然去找匹配的构造器，结果发现需要 5 个参数的版本，于是报错。
         //而 builder() 方法是静态工厂方法，它内部会帮你把那些参数都准备好，所以你只需要传 VectorStore 就行。
-        QuestionAnswerAdvisor qaAdvisor = QuestionAnswerAdvisor.builder(loveAppVectorStore)
+        QuestionAnswerAdvisor qaAdvisor = QuestionAnswerAdvisor.builder(loveAppVectorStore)//rag需要存储，所以用到VectorStore
                 .searchRequest(SearchRequest.builder().topK(4).similarityThreshold(0.5).build())
                 .build();
         ChatResponse chatResponse=chatClient

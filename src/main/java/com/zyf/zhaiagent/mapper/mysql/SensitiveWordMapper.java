@@ -1,4 +1,4 @@
-package com.zyf.zhaiagent.mapper;
+package com.zyf.zhaiagent.mapper.mysql;
 
 import com.zyf.zhaiagent.entity.SensitiveWord;
 import org.apache.ibatis.annotations.Mapper;

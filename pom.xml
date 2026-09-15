@@ -103,6 +103,28 @@
             <artifactId>spring-ai-advisors-vector-store</artifactId>
 <!--            <version>1.0.0</version>-->
         </dependency>
+<!--        手动整合PGvector向量存储
+        spring-ai-pgvector-store 是底层的“核心件”，需要你自己手动组装-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-pgvector-store</artifactId>
+        </dependency>
+        <!--        自动整合PGvector向量存储
+        spring-ai-starter-vector-store-pgvector 是封装好的“全家桶”，开箱即用
+        需要编写配置，-->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.ai</groupId>-->
+<!--            <artifactId>spring-ai-starter-vector-store-pgvector</artifactId>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>

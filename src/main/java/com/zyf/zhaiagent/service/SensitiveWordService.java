@@ -1,6 +1,6 @@
 package com.zyf.zhaiagent.service;
 
-import com.zyf.zhaiagent.mapper.SensitiveWordMapper;
+import com.zyf.zhaiagent.mapper.mysql.SensitiveWordMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -20,7 +20,8 @@ public class SensitiveWordService {
     /**
      * 从数据库加载违禁词（带缓存）
      */
-    @Cacheable(value = "sensitiveWords", unless = "#result == null || #result.isEmpty()")
+    @Cacheable(value = "sensitiveWords", //缓存名（放到哪个缓存区）
+            unless = "#result == null || #result.isEmpty()")//什么情况下不缓存
     public List<String> loadSensitiveWords() {
         log.info("从数据库加载违禁词列表...");
         List<String> words = mapper.findAllEnabledWords();
