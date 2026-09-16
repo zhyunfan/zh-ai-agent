@@ -28,6 +28,13 @@ import java.util.List;
 public class LoveAppVectorStoreConfig {
     @Resource
     private LoveAppDocumentLoader loveAppDocumentLoader;
+
+    @Resource
+    private MyTokenTextSplitter myTokenTextSplitter;
+
+    @Resource
+    private MyKeywordEnricher myKeywordEnricher;
+
     @Bean
     VectorStore loveAppVectorStore(EmbeddingModel dashscopeEmbeddingModel) throws IOException {
         //有了嵌入大模型，就进行简易的基于内存的vectorstore存储
@@ -35,8 +42,12 @@ public class LoveAppVectorStoreConfig {
         SimpleVectorStore simpleVectorStore = SimpleVectorStore.builder(dashscopeEmbeddingModel).build();
         //加载文档
         List<Document> documentList=loveAppDocumentLoader.loadMarkdowns();
+//        //自主切分文档，不推荐，因为切的不好
+//        List<Document> splitDocuments = myTokenTextSplitter.splitCustomized(documentList);
+        //自动补充关键词元信息
+        List<Document> enrichDocuments = myKeywordEnricher.enrichDocuments(documentList);
         //存储位置	JVM 堆内存（一个 Map 结构）
-        simpleVectorStore.add(documentList);
+        simpleVectorStore.add(enrichDocuments);
         return simpleVectorStore;
     }
 }
