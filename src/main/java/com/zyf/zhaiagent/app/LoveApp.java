@@ -3,6 +3,7 @@ package com.zyf.zhaiagent.app;
 import com.zyf.zhaiagent.advisor.MyLoggerAdvisor;
 import com.zyf.zhaiagent.advisor.SensitiveWordAdvisor;
 import com.zyf.zhaiagent.chatmemory.FileBasedChatMemory;
+import com.zyf.zhaiagent.rag.QueryRewriter;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -107,6 +108,9 @@ public class LoveApp {
     @Resource
     private VectorStore pgVectorVectorStore;
 
+    @Resource
+    private QueryRewriter queryRewriter;
+
     /**
      * 和RAG知识库进行对话
      * @param message
@@ -137,6 +141,9 @@ public class LoveApp {
      * 5. .chatResponse()                      → 拿到最终响应
      */
     public String doChatWithRag(String message,String chatId){
+        //查询重写
+        String rewrittenMessage = queryRewriter.doQueryRewrite(message);
+
         //之前写的 new QuestionAnswerAdvisor(loveAppVectorStore) 是在直接调用构造器，而你只传了 1 个参数，编译器自然去找匹配的构造器，结果发现需要 5 个参数的版本，于是报错。
         //而 builder() 方法是静态工厂方法，它内部会帮你把那些参数都准备好，所以你只需要传 VectorStore 就行。
         QuestionAnswerAdvisor qaAdvisor = QuestionAnswerAdvisor.builder(loveAppVectorStore)//rag需要存储，所以用到VectorStore
@@ -147,7 +154,7 @@ public class LoveApp {
                 .build();
         ChatResponse chatResponse=chatClient
                 .prompt()
-                .user(message)
+                .user(rewrittenMessage)
                 .advisors(spec->spec.param(ChatMemory.CONVERSATION_ID,chatId))
                 //开启日志，便于观察效果
                 .advisors(new MyLoggerAdvisor())
