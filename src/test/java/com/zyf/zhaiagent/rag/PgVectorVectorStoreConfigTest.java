@@ -16,6 +16,7 @@ class PgVectorVectorStoreConfigTest {
 
     @Resource
     private VectorStore pgVectorVectorStore;
+
     @Test
     void pgVectorVectorStore() {
         List<Document>documents=List.of(

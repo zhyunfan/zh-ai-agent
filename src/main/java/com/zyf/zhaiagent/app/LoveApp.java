@@ -104,6 +104,9 @@ public class LoveApp {
     @Resource
     private Advisor loveAppRagCloudAdvisor;
 
+    @Resource
+    private VectorStore pgVectorVectorStore;
+
     /**
      * 和RAG知识库进行对话
      * @param message
@@ -139,6 +142,9 @@ public class LoveApp {
         QuestionAnswerAdvisor qaAdvisor = QuestionAnswerAdvisor.builder(loveAppVectorStore)//rag需要存储，所以用到VectorStore
                 .searchRequest(SearchRequest.builder().topK(4).similarityThreshold(0.5).build())
                 .build();
+        QuestionAnswerAdvisor qaAdvisor2 = QuestionAnswerAdvisor.builder(pgVectorVectorStore)//pgVectorVectorStore是在阿里云上面租的一个向量数据库
+                .searchRequest(SearchRequest.builder().topK(4).similarityThreshold(0.5).build())
+                .build();
         ChatResponse chatResponse=chatClient
                 .prompt()
                 .user(message)
@@ -152,7 +158,9 @@ public class LoveApp {
                 //大模型基于这些资料回答，而不是凭空瞎编 → 降低幻觉
 //                .advisors(qaAdvisor)//这里才是把文本转换为向量
                 //应用RAG检索增强服务（基于云知识库服务）
-                .advisors(loveAppRagCloudAdvisor)
+//                .advisors(loveAppRagCloudAdvisor)
+                //应用RAG检索增强服务（基于PGVector向量存储）
+                .advisors(qaAdvisor2)
                 .call()
                 .chatResponse();//返回完整的 ChatResponse 对象（包含回复内容、元数据、token 用量等）
         String content=chatResponse.getResult().getOutput().getText();
