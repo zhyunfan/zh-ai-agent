@@ -171,7 +171,7 @@ public class LoveApp {
 //                .advisors(qaAdvisor2)
                 .advisors(
                         LoveAppRagCustomAdvisorFactory.createLoveAppRagCustomAdvisor(
-                                loveAppVectorStore,"单身"
+                                loveAppVectorStore,"单身"//上下文查询增强器就找不到上下文了
                         )
                 )
                 .call()

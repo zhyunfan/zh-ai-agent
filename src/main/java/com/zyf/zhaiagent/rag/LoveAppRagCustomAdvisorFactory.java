@@ -22,12 +22,12 @@ public class LoveAppRagCustomAdvisorFactory {
         VectorStoreDocumentRetriever documentRetriever = VectorStoreDocumentRetriever.builder()//向量数据库的文档检索器因为用向量数据库
                 .vectorStore(vectorStore)
                 .filterExpression(expression)
-                .similarityThreshold(0.5)//相似度阈值
+                .similarityThreshold(0.7)//相似度阈值
                 .topK(3)//返回3个
                 .build();
         return RetrievalAugmentationAdvisor.builder()
                 .documentRetriever(documentRetriever)//制定文档检索器,自定义文档的过滤条件
-//                .queryAugmenter()//文档查询增强器
+                .queryAugmenter(LoveAppContextualQueryAugmenterFactory.createInstance())//文档上下文查询增强器
                 .build();
     }
 }
