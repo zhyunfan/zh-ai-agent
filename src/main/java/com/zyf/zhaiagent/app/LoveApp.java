@@ -3,6 +3,7 @@ package com.zyf.zhaiagent.app;
 import com.zyf.zhaiagent.advisor.MyLoggerAdvisor;
 import com.zyf.zhaiagent.advisor.SensitiveWordAdvisor;
 import com.zyf.zhaiagent.chatmemory.FileBasedChatMemory;
+import com.zyf.zhaiagent.rag.LoveAppRagCustomAdvisorFactory;
 import com.zyf.zhaiagent.rag.QueryRewriter;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -167,7 +168,12 @@ public class LoveApp {
                 //应用RAG检索增强服务（基于云知识库服务）
 //                .advisors(loveAppRagCloudAdvisor)
                 //应用RAG检索增强服务（基于PGVector向量存储）
-                .advisors(qaAdvisor2)
+//                .advisors(qaAdvisor2)
+                .advisors(
+                        LoveAppRagCustomAdvisorFactory.createLoveAppRagCustomAdvisor(
+                                loveAppVectorStore,"单身"
+                        )
+                )
                 .call()
                 .chatResponse();//返回完整的 ChatResponse 对象（包含回复内容、元数据、token 用量等）
         String content=chatResponse.getResult().getOutput().getText();
