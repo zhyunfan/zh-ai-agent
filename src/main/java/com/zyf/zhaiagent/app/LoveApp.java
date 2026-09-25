@@ -169,6 +169,7 @@ public class LoveApp {
 //                .advisors(loveAppRagCloudAdvisor)
                 //应用RAG检索增强服务（基于PGVector向量存储）
 //                .advisors(qaAdvisor2)
+                //应用自定义的RAG检索增强服务（文档查询器+上下文增强器）
                 .advisors(
                         LoveAppRagCustomAdvisorFactory.createLoveAppRagCustomAdvisor(
                                 loveAppVectorStore,"单身"//上下文查询增强器就找不到上下文了
