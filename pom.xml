@@ -125,6 +125,12 @@
 <!--            <groupId>org.springframework.ai</groupId>-->
 <!--            <artifactId>spring-ai-starter-vector-store-pgvector</artifactId>-->
 <!--        </dependency>-->
+<!--        集成jsoup html解析库实现网页抓取-->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.19.1</version>
+        </dependency>
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
