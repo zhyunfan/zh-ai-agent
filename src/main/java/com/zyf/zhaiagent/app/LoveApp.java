@@ -17,6 +17,7 @@ import org.springframework.ai.chat.memory.InMemoryChatMemoryRepository;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
@@ -38,17 +39,20 @@ public class LoveApp {
     public LoveApp(ChatModel dashscopeChatModel) {
         //初始化基于文件的对话记忆
         String fileDir=System.getProperty("user.dir")+"/tmp/chat-memory";
-        ChatMemory chatMemory=new FileBasedChatMemory(fileDir);
+        //FileBasedChatMemory 在 get() 方法中会返回完整历史（FileBasedChatMemory.java:55-57），不做任何截断。
+        // 如果同一个 chatId 对话轮数很多，历史消息会无限增长，加上 6 个工具的 JSON Schema 定义（allTools）+ System Prompt，
+        // 最终会超过 258048 tokens 的限制。
+//        ChatMemory chatMemory=new FileBasedChatMemory(fileDir);
 
-//        // 初始化基于内存的对话记忆
-//        // 1. 创建内存仓储
-//        InMemoryChatMemoryRepository memoryRepository = new InMemoryChatMemoryRepository();
-//
-//        // 2. 使用 Builder 构建 ChatMemory，并绑定仓储
-//        ChatMemory chatMemory = MessageWindowChatMemory.builder()
-//                .chatMemoryRepository(memoryRepository) // 绑定内存仓储
-//                .maxMessages(10) // 可选：限制对话历史条数，避免上下文过长
-//                .build();
+        // 初始化基于内存的对话记忆
+        // 1. 创建内存仓储
+        InMemoryChatMemoryRepository memoryRepository = new InMemoryChatMemoryRepository();
+
+        // 2. 使用 Builder 构建 ChatMemory，并绑定仓储
+        ChatMemory chatMemory = MessageWindowChatMemory.builder()
+                .chatMemoryRepository(memoryRepository) // 绑定内存仓储
+                .maxMessages(10) // 可选：限制对话历史条数，避免上下文过长
+                .build();
 
         //初始化客户端对象
         chatClient = ChatClient.builder(dashscopeChatModel)
@@ -177,6 +181,30 @@ public class LoveApp {
                 )
                 .call()
                 .chatResponse();//返回完整的 ChatResponse 对象（包含回复内容、元数据、token 用量等）
+        String content=chatResponse.getResult().getOutput().getText();
+        log.info("content:{}",content);
+        return content;
+    }
+
+    //ai恋爱知识库调用工具能力
+    @Resource
+    private ToolCallback[] allTools;
+
+    /**
+     * AI恋爱报告功能（支持调用工具）
+     * @param message
+     * @param chatId
+     * @return
+     */
+    public String doChatWithTools(String message, String chatId) {
+        ChatResponse chatResponse = chatClient
+                .prompt()
+                .user(message)
+                .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId))
+                .advisors(new MyLoggerAdvisor())
+                .toolCallbacks(allTools)
+                .call()
+                .chatResponse();
         String content=chatResponse.getResult().getOutput().getText();
         log.info("content:{}",content);
         return content;
