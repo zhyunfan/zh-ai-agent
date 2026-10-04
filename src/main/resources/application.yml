@@ -14,6 +14,10 @@ spring:
         dimensions: 1024 #向量嵌入模型embedding的度，不设置会根据实际的向量数去指定维度的数量，最好确定一下
         distance-type: COSINE_DISTANCE
         max-document-batch-size: 10000 # Optional: Maximum number of documents per batch
+    mcp:
+      client:
+        stdio:
+          servers-configuration: classpath:mcp-servers.json
   main:
     allow-bean-definition-overriding: true
 
@@ -41,3 +45,4 @@ knife4j:
 logging:
   level:
     org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor: debug
+#    org.springframework.ai: debug

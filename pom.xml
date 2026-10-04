@@ -146,6 +146,12 @@
             <version>9.1.0</version>
             <scope>test</scope>
         </dependency>
+<!--        springai mcp client-->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-mcp-client</artifactId>
+        </dependency>
+
 
         <dependency>
             <groupId>cn.hutool</groupId>

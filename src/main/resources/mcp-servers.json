@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "amap-mcp-server": {
+      "command": "uvx",
+      "args": [
+        "amap-mcp-server"
+      ],
+      "env": {
+        "AMAP_MAPS_API_KEY": "91c56f8abf3d5b8e4d26f217b11e65b4"
+      }
+    }
+  }
+}
