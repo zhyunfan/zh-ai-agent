@@ -212,12 +212,54 @@ public class LoveApp {
     }
 
     //AI调用mcp服务
-    //spring ai mcp服务在启动时会自动读取mcp-servers.json文件，找到工具并注册amap-mcp-server工具到toolCallbackProvider，就可以直接使用了
+    //spring ai mcp服务在启动时会自动读取mcp-servers.json文件，找到工具并注册比如amap-mcp-server等工具到toolCallbackProvider，就可以直接使用了
+    //在写mcp工具时尽量每个工具写一个项目
     @Resource
     private ToolCallbackProvider toolCallbackProvider;
 
     /**
      * AI恋爱报告功能（支持mcp服务）
+     *
+     * 你的项目是 MCP Client（调用方）
+     * zh-image-search-mcp-server 是 MCP Server（被调用方）
+     * Client 启动时读取配置，去拉起/连接 Server
+     *
+     * 1. Spring Boot 启动
+     *    ↓
+     * 2. McpClientAutoConfiguration 被激活
+     *    （因为 classpath 下有 spring-ai-mcp-client 依赖）
+     *    ↓
+     * 3. StdioTransportAutoConfiguration 读取 servers-configuration
+     *    ↓
+     * 4. 解析 classpath:mcp-servers.json
+     *    ↓
+     * 5. 为每个 server服务端 创建 StdioClientTransport
+     *    （启动子进程 java -jar zh-image-search-mcp-server.jar）
+     *    ↓
+     * 6. 创建 SyncMcpClient（通过 JSON-RPC 和 Server 通信）
+     *    ↓
+     * 7. 创建 SyncMcpToolCallbackProvider（实现 ToolCallbackProvider）
+     *    ↓
+     * 8. 注册为 Bean → 你的 @Resource 注入成功
+     *
+     * 相当于：
+     * ① Maven 构建阶段（编译时）
+     *    pom.xml 里的 spring-ai-starter-mcp-client
+     *    → 下载对应 jar
+     *    → 打进 classpath
+     *    ↓
+     * ② Spring Boot 启动阶段（运行时）
+     *    SpringApplication.run()
+     *    ↓
+     * ③ Spring Boot 加载 application.yml
+     *    → 读到 spring.ai.mcp.client.stdio.servers-configuration
+     *    ↓
+     * ④ Spring Boot 扫描 classpath，找自动配置类
+     *    → 发现 MCP Client starter 里的 AutoConfiguration
+     *    → 条件满足（有配置、有依赖）→ 激活
+     *    ↓
+     * ⑤ AutoConfiguration 读取 servers-configuration 指向的 JSON
+     *    → 创建 MCP Client Bean
      * @param message
      * @param chatId
      * @return

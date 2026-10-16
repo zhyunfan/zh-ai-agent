@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: zh-image-search-mcp-server
+  profiles:
+    active: stdio #默认激活 stdio 配置
+server:
+  port: 8127
