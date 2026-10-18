@@ -2,6 +2,7 @@ spring:
   application:
     name: zh-image-search-mcp-server
   profiles:
-    active: stdio #默认激活 stdio 配置
+    active: sse #sse需要手动启动mcp服务：运行springboot项目，以debug模式：ZhImageSearchMcpServerApplication.java的main方法
+#    active: stdio #默认激活 stdio 配置,读取stdio配置文件,名为 stdio 的 Spring 配置文件就是application-stdio.yml
 server:
   port: 8127

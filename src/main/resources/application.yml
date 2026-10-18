@@ -16,8 +16,12 @@ spring:
         max-document-batch-size: 10000 # Optional: Maximum number of documents per batch
     mcp:
       client:
-        stdio:
-          servers-configuration: classpath:mcp-servers.json
+        sse:
+          connections:
+            server1:
+              url: http://localhost:8127 #客户端连接的服务端的地址，此时sse的mcp服务手动开启在8127端口
+  #        stdio:
+#          servers-configuration: classpath:mcp-servers.json
   main:
     allow-bean-definition-overriding: true
 
